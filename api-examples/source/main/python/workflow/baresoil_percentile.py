@@ -46,7 +46,6 @@ from datacube.api.utils import get_dataset_metadata, get_mask_pqa, get_mask_wofs
 from datacube.api.utils import get_dataset_data_masked, raster_create, propagate_using_selected_pixel,get_dataset_data
 from datacube.api.utils import NDV, empty_array, calculate_ndvi, date_to_integer, propagate_using_selected_pixel
 
-#NDV =numpy.nan
 
 _log = logging.getLogger()
 
@@ -462,10 +461,10 @@ class BareSoilCellChunkTask(CellChunkTask):
                                      x_size=self.chunk_size_x, y_size=self.chunk_size_y,
                                      mask=mask)
             else:
-                no_wofs +=1
-                break
-                #_log.info("### mask wofs is [%s]", mask)
-
+                if self.mask_wofs_apply:
+                    no_wofs +=1
+                    _log.info("### no wofs data is available, skipping tile [%s]", fc.path)
+                    continue
             # Get ARG25 dataset
             log_mem("Before get data")
             data[DatasetType.ARG25] = get_dataset_data_masked(nbar,

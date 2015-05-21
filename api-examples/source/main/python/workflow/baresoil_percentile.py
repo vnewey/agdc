@@ -463,6 +463,7 @@ class BareSoilCellChunkTask(CellChunkTask):
                                      mask=mask)
             else:
                 no_wofs +=1
+                break
                 #_log.info("### mask wofs is [%s]", mask)
 
             # Get ARG25 dataset

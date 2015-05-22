@@ -427,7 +427,7 @@ class BareSoilCellChunkTask(CellChunkTask):
 
         metadata_nbar = None
         metadata_fc = None
-        index = 0
+        tile_count = 0
         no_wofs =0
         for tile in self.get_tiles():
             pqa = tile.datasets[DatasetType.PQ25]
@@ -521,7 +521,7 @@ class BareSoilCellChunkTask(CellChunkTask):
 
 
             del data
-            index += 1
+            tile_count += 1
 
 
         log_mem("After processing the tiles")
@@ -533,7 +533,7 @@ class BareSoilCellChunkTask(CellChunkTask):
         best_pixel_fc[Fc25Bands.BARE_SOIL] = numpy.nanpercentile(stack_bare_soil_nan, self.percentile,
                                                                  axis=0, interpolation='nearest')
 
-        for index in range(len(self.get_tiles())):
+        for index in range(tile_count):
 
             #_log.info("### best pixel bare soil is [%s]", best_pixel_fc[Fc25Bands.BARE_SOIL][100][100])
 

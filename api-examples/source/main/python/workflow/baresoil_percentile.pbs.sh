@@ -1,11 +1,11 @@
 #!/bin/bash
 #PBS -N soil
 #PBS -P u46
-#PBS -q normal
+#PBS -q express
 #PBS -l ncpus=16,mem=32GB
 #PBS -l walltime=04:00:00
 #PBS -l wd
-#PBS -o $outputdir
+#PBS -joe -o $outputdir
 ##PBS -l other=gdata1
 
 export MODULEPATH=/projects/u46/opt/modules/modulefiles:$MODULEPATH
@@ -30,4 +30,4 @@ COMMAND="python $HOME/git_checkouts/agdc/api-examples/source/main/python/workflo
 #mpirun -np 16 $COMMAND
 
 # NO MPI
-mpirun -np 16 $COMMAND --local-scheduler
+$COMMAND --local-scheduler --workers 16

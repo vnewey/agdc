@@ -37,7 +37,7 @@ import logging
 import numpy
 import os
 import osr
-from datacube.api.model import Ls57Arg25Bands, DatasetType, Fc25Bands, Satellite
+from datacube.api.model import Ls57Arg25Bands, DatasetType, Satellite
 from datacube.api.workflow import TileListCsvTask
 from datacube.api.workflow.tile import TileTask
 from datacube.api.workflow.cell_chunk import Workflow, SummaryTask, CellTask, CellChunkTask
@@ -188,7 +188,7 @@ class ArgStatsCellTask(CellTask):
         for band in Ls57Arg25Bands:
             results[band.name]=dict()
             for dataset in datasets:
-                results[band.name][dataset.name]=empty_array((len(datasets),4000,4000), dtype=numpy.int16, ndv=NDV)
+                results[band.name][dataset.name]=empty_array(shape, dtype=numpy.int16, ndv=NDV)
 
         SATELLITE_DATA_VALUES = {Satellite.LS5: 5, Satellite.LS7: 7, Satellite.LS8: 8}
 
@@ -199,7 +199,7 @@ class ArgStatsCellTask(CellTask):
             for dataset in Dataset:
                 for x_offset, y_offset in itertools.product(range(0, 4000, self.chunk_size_x),
                                                         range(0, 4000, self.chunk_size_y)):
-                    #Do FC
+
                     filename = os.path.join(self.output_directory,
                                             self.get_dataset_chunk_filename(band= band.name,
                                                                             dataset=dataset.name,
@@ -210,15 +210,15 @@ class ArgStatsCellTask(CellTask):
 
                     # read the chunk
                     data = numpy.load(filename)
-                    results[band.name][dataset.name][:, y_offset:y_offset+self.chunk_size_y, x_offset:x_offset+self.chunk_size_x] =data
+                    results[band.name][dataset.name][y_offset:y_offset+self.chunk_size_y, x_offset:x_offset+self.chunk_size_x] =data
 
                     _log.info("data is [%s]\n[%s]", numpy.shape(data), data)
                     _log.info("Writing it to (%d,%d)", x_offset, y_offset)
                     del data
 
-        for band in Ls57Arg25Bands:
+        for b in Ls57Arg25Bands:
 
-            raster = driver.Create(self.get_dataset_filename(band.name), 4000, 4000, len(Dataset), gdal.GDT_Int32)
+            raster = driver.Create(self.get_dataset_filename(b.name), 4000, 4000, len(Dataset), gdal.GDT_Int32)
             assert raster
 
             raster.SetGeoTransform(transform)
@@ -234,7 +234,8 @@ class ArgStatsCellTask(CellTask):
 
                 band.SetNoDataValue(NDV)
                 band.SetDescription(dataset.name)
-                band.WriteArray(results[band.name][dataset.name])
+                print "results[b.name][dataset.name].shape", results[b.name][dataset.name].shape
+                band.WriteArray(results[b.name][dataset.name])
 
                 band.FlushCache()
 
@@ -242,8 +243,8 @@ class ArgStatsCellTask(CellTask):
             band.FlushCache()
             del band
 
-        raster.FlushCache()
-        del raster
+            raster.FlushCache()
+            del raster
 
 
 
@@ -258,7 +259,7 @@ class ArgStatsCellTask(CellTask):
             "SATELLITE": " ".join([s.name for s in self.satellites]),
             "PIXEL_QUALITY_FILTER": self.mask_pqa_apply and " ".join([mask.name for mask in self.mask_pqa_mask]) or "",
             "WATER_FILTER": self.mask_wofs_apply and " ".join([mask.name for mask in self.mask_wofs_mask]) or "",
-            "STATISTICS": " ".join([s.name for s in Statistic])
+            "STATISTICS": " ".join([d.name for d in Dataset])
         }
 
     def get_dataset_chunk_filename(self, band, dataset, x_offset, y_offset):
@@ -280,10 +281,6 @@ class ArgStatsCellTask(CellTask):
 class ArgStatsCellChunkTask(CellChunkTask):
 
     add_on_name = luigi.Parameter()
-    @staticmethod
-    def get_dataset_types():
-
-        return [DatasetType.ARG25, DatasetType.PQ25, DatasetType.FC25, DatasetType.NDVI]
 
     def get_dataset_chunk_filename(self, band, dataset):
         from datacube.api.utils import get_satellite_string
@@ -335,12 +332,6 @@ class ArgStatsCellChunkTask(CellChunkTask):
         shape = (self.chunk_size_x, self.chunk_size_y)
         no_data_value = NDV
 
-        best_pixel_fc = dict()
-
-        for band in Fc25Bands:
-            # best_pixel_fc[band] = empty_array(shape=shape, dtype=numpy.int16, ndv=INT16_MIN)
-            best_pixel_fc[band] = empty_array(shape=shape, dtype=numpy.float32, ndv=NDV)
-
         results = dict()
 
         for band in Ls57Arg25Bands:
@@ -360,8 +351,6 @@ class ArgStatsCellChunkTask(CellChunkTask):
         stack_sat =[]
         stack_date=[]
 
-        metadata_nbar = None
-        metadata_fc = None
         tile_count = 0
         no_wofs =0
         for tile in self.get_tiles():
@@ -399,6 +388,7 @@ class ArgStatsCellChunkTask(CellChunkTask):
                     no_wofs +=1
                     _log.info("### no wofs data is available, skipping tile [%s]", nbar.path)
                     continue
+
             # Get ARG25 dataset
             log_mem("Before get data")
             data[DatasetType.ARG25] = get_dataset_data_masked(nbar,
@@ -432,18 +422,18 @@ class ArgStatsCellChunkTask(CellChunkTask):
 
         log_mem("After processing the tiles")
         if self.mask_wofs_apply:
-            _log.info("### wofs tiles missing is [%s]", no_wofs)
+            _log.info("### number of wofs tiles missing is [%s]", no_wofs)
 
         for band in Ls57Arg25Bands:
-
+            print "band.name", band.name
             #calc stats
             data_array = numpy.array(stack_nbar[band.name])
 
             data_array_nan = numpy.where(data_array==NDV,numpy.nan,data_array)
-
-            results[band.name]["PERCENTILE_25"] = numpy.nanpercentile(data_array_nan, 75,
+            print "data_array_nan", data_array_nan
+            results[band.name]["PERCENTILE_75"] = numpy.nanpercentile(data_array_nan, 75,
                                                                      axis=0, interpolation='nearest')
-
+            print "results[band.name][PERCENTILE_75]", results[band.name]["PERCENTILE_75"]
             results[band.name]["MEDIAN"] = numpy.median(data_array_nan, axis=0)
 
             results[band.name]["PERCENTILE_25"] = numpy.nanpercentile(data_array_nan, 75,

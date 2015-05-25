@@ -188,7 +188,7 @@ class ArgStatsCellTask(CellTask):
         for band in Ls57Arg25Bands:
             results[band.name]=dict()
             for dataset in datasets:
-                results[band.name][dataset.name]=empty_array(shape, dtype=numpy.int16, ndv=NDV)
+                results[band.name][dataset.name]=empty_array(shape, dtype=numpy.int32, ndv=NDV)
 
         SATELLITE_DATA_VALUES = {Satellite.LS5: 5, Satellite.LS7: 7, Satellite.LS8: 8}
 
@@ -234,7 +234,6 @@ class ArgStatsCellTask(CellTask):
 
                 band.SetNoDataValue(NDV)
                 band.SetDescription(dataset.name)
-                print "results[b.name][dataset.name].shape", results[b.name][dataset.name].shape
                 band.WriteArray(results[b.name][dataset.name])
 
                 band.FlushCache()
@@ -425,18 +424,18 @@ class ArgStatsCellChunkTask(CellChunkTask):
             _log.info("### number of wofs tiles missing is [%s]", no_wofs)
 
         for band in Ls57Arg25Bands:
-            print "band.name", band.name
+
             #calc stats
             data_array = numpy.array(stack_nbar[band.name])
 
             data_array_nan = numpy.where(data_array==NDV,numpy.nan,data_array)
-            print "data_array_nan", data_array_nan
+
             results[band.name]["PERCENTILE_75"] = numpy.nanpercentile(data_array_nan, 75,
                                                                      axis=0, interpolation='nearest')
-            print "results[band.name][PERCENTILE_75]", results[band.name]["PERCENTILE_75"]
+
             results[band.name]["MEDIAN"] = numpy.median(data_array_nan, axis=0)
 
-            results[band.name]["PERCENTILE_25"] = numpy.nanpercentile(data_array_nan, 75,
+            results[band.name]["PERCENTILE_25"] = numpy.nanpercentile(data_array_nan, 25,
                                                                      axis=0, interpolation='nearest')
 
         for index in range(tile_count):
@@ -502,7 +501,7 @@ class ArgStatsCellChunkTask(CellChunkTask):
         for band in Ls57Arg25Bands:
             for dataset in Dataset:
                 numpy.save(self.get_dataset_chunk_filename(band.name,dataset.name),results[band.name][dataset.name])
-                print self.get_dataset_chunk_filename(band.name,dataset.name)
+
         del results
 
         log_mem("DONE")

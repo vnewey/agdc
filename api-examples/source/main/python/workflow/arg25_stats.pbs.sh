@@ -3,9 +3,9 @@
 #PBS -P u46
 #PBS -q express
 #PBS -l ncpus=16,mem=32GB
-#PBS -l walltime=24:00:00
+#PBS -l walltime=03:00:00
 #PBS -l wd
-#PBS -joe -o $outputdir
+##PBS -joe -o $outputdir
 ##PBS -l other=gdata1
 
 export MODULEPATH=/projects/u46/opt/modules/modulefiles:$MODULEPATH

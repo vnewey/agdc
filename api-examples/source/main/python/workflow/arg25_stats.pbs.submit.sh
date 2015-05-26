@@ -29,9 +29,9 @@
 
 PBS_SCRIPT="$HOME/git_checkouts/agdc/api-examples/source/main/python/workflow/arg25_stats.pbs.sh"
 
-OUTPUT_DIR="/g/data/u46/vmn547/tmp/example/arg25"
+OUTPUT_DIR="/g/data/u46/vmn547/tmp/example/arg25_big_memory"
 
-qsub -v outputdir="${OUTPUT_DIR}",xmin=146,xmax=146,ymin=-34,ymax=-34,acqmin=1987-01,acqmax=2014-12,chunkx=200,chunky=200,add_on_name=_new "${PBS_SCRIPT}"
+qsub -v outputdir="${OUTPUT_DIR}",xmin=146,xmax=146,ymin=-34,ymax=-34,acqmin=1987-01,acqmax=2014-12,chunkx=200,chunky=200,add_on_name=_big_memory "${PBS_SCRIPT}"
 #qsub -v outputdir="${OUTPUT_DIR}",xmin=121,xmax=121,ymin=-29,ymax=-29,acqmin=1987,acqmax=2014,chunkx=200,chunky=200,add_on_name=_new "${PBS_SCRIPT}"
 
 #qsub -v outputdir="${OUTPUT_DIR}",xmin=121,xmax=121,ymin=-29,ymax=-29,acqmin=1987-01,acqmax=2014-12,chunkx=200,chunky=200,percentile=90,add_on_name=_new_api "${PBS_SCRIPT}"

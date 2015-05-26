@@ -65,8 +65,8 @@ class Dataset(Enum):
     DATE75 = "DATE75"
     SENSOR75 = "SENSOR75"
     MEDIAN = "MEDIAN"
-    DATE_MED = "DATE_MED"
-    SENSOR_MED = "SENSOR_MED"
+    DATE_MED = "DATE_MEDIAN"
+    SENSOR_MED = "SENSOR_MEDIAN"
     PERCENTILE_25 = "PERCENTILE_25"
     DATE25 = "DATE25"
     SENSOR25 = "SENSOR25"
@@ -433,7 +433,8 @@ class ArgStatsCellChunkTask(CellChunkTask):
             results[band.name]["PERCENTILE_75"] = numpy.nanpercentile(data_array_nan, 75,
                                                                      axis=0, interpolation='nearest')
 
-            results[band.name]["MEDIAN"] = numpy.median(data_array_nan, axis=0)
+            results[band.name]["MEDIAN"] = numpy.nanpercentile(data_array_nan, 50,
+                                                                     axis=0, interpolation='nearest')
 
             results[band.name]["PERCENTILE_25"] = numpy.nanpercentile(data_array_nan, 25,
                                                                      axis=0, interpolation='nearest')

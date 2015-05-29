@@ -10,6 +10,7 @@
 
 export MODULEPATH=/projects/u46/opt/modules/modulefiles:$MODULEPATH
 export -p PYTHONPATH=$HOME/git_checkouts/agdc/api-examples/source/main/python:$HOME/git_checkouts/agdc/api/source/main/python:$HOME/tmp/enum34-1.0-py2.7.egg:$PYTHONPATH
+umask g+rw
 
 module unload python
 module load python/2.7.6

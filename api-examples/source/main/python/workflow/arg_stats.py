@@ -60,13 +60,13 @@ _log = logging.getLogger()
 
 
 class Dataset(Enum):
-    __order__ = "PERCENTILE_75 DATE75 SENSOR75 MEDIAN DATE_MED SENSOR_MED PERCENTILE_25 DATE25 SENSOR25"
+    __order__ = "PERCENTILE_75 DATE75 SENSOR75 MEDIAN DATE_MEDIAN SENSOR_MEDIAN PERCENTILE_25 DATE25 SENSOR25"
     PERCENTILE_75 = "PERCENTILE_75"
     DATE75 = "DATE75"
     SENSOR75 = "SENSOR75"
     MEDIAN = "MEDIAN"
-    DATE_MED = "DATE_MEDIAN"
-    SENSOR_MED = "SENSOR_MEDIAN"
+    DATE_MEDIAN = "DATE_MEDIAN"
+    SENSOR_MEDIAN = "SENSOR_MEDIAN"
     PERCENTILE_25 = "PERCENTILE_25"
     DATE25 = "DATE25"
     SENSOR25 = "SENSOR25"
@@ -458,10 +458,10 @@ class ArgStatsCellChunkTask(CellChunkTask):
                                                                  results[band.name]["DATE75"])
 
 
-                results[band.name]["DATE_MED"]= propagate_using_selected_pixel(results[band.name]["MEDIAN"],
+                results[band.name]["DATE_MEDIAN"]= propagate_using_selected_pixel(results[band.name]["MEDIAN"],
                                                                  stack_nbar[band.name][index],
                                                                  stack_date[index],
-                                                                 results[band.name]["DATE_MED"])
+                                                                 results[band.name]["DATE_MEDIAN"])
 
 
                 results[band.name]["SENSOR25"]= propagate_using_selected_pixel(results[band.name]["PERCENTILE_25"],
@@ -476,10 +476,10 @@ class ArgStatsCellChunkTask(CellChunkTask):
                                                                  results[band.name]["SENSOR75"])
 
 
-                results[band.name]["SENSOR_MED"]= propagate_using_selected_pixel(results[band.name]["MEDIAN"],
+                results[band.name]["SENSOR_MEDIAN"]= propagate_using_selected_pixel(results[band.name]["MEDIAN"],
                                                                  stack_nbar[band.name][index],
                                                                  stack_sat[index],
-                                                                 results[band.name]["SENSOR_MED"])
+                                                                 results[band.name]["SENSOR_MEDIAN"])
 
 
 
